@@ -1,0 +1,1 @@
+Apresenta o valor dos 4 bits mais significativos das amostras lidas em ADC nos LEDS5....LEDS2.

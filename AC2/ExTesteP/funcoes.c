@@ -102,8 +102,7 @@ char getc(void)    {
 
           return 0;
       } else{            // else      
-
-
+      
           return U2RXREG;            //   Return U2RXREG   
 
       }   
