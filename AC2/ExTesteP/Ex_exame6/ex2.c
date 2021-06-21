@@ -64,8 +64,7 @@ int main (void){
         v = getADCvalue();
         sendToDisplay(v);
         printInt(v,1);
-        LATE = (LATE & 0xFFC3) | v;
-        
+        LATE = (LATE & 0xFFC3) | v; //objetivo
         printStr("\n");
         AD1CON1bits.ASAM = 1;
 
