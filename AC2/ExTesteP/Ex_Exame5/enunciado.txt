@@ -1,0 +1,5 @@
+Guardar num buffer cirular os ultimos 16 valores dos 4 bits do porto de entrada(RB3 a RB0).
+O buffer deve ser atualizado a quando do envio do valor do porto para o PC.
+A uart1 deve passar caracteres por interrupcao.
+Quando for recebido o caracter 'E' o valor das 16 posicoes do buffer circular deve ser enviado
+por ordem cronologica de oorrencia para o PC.
