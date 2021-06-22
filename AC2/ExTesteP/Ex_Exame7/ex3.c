@@ -1,7 +1,13 @@
 #include <detpic32.h>
 
 volatile int v;
+volatile int program = 0;
 
+void putc(char byte2send)
+{
+    while (U2STAbits.UTXBF == 1);   // Wait until the Transmister Buffer is Full
+    U2TXREG = byte2send;
+}
 char getc(void){
     char leitura;
     if(U2STAbits.OERR == 1){
@@ -47,15 +53,17 @@ void _int_(32) isr_UART2(void){
     if(IFS1bits.U2RXIF == 1){
         c = getc();
         if(c == 's'){
-            v = to_bcd(PORTB & 0x000F);
             printStr("Valor lido dos switches: ");
             printInt(PORTB &  0x000F,1);
             printStr("\n");
-           
         }
-        if(c == 'n'){
-            printStr("RAFAEL");
+        if(c == 'p'){
+            putc('O');
             printStr("\n");
+        }
+        if(c == 't'){
+            printStr("Programa terminou.");
+            program = 1;
         }
     }
     IFS1bits.U2RXIF = 0;
@@ -65,7 +73,7 @@ int main(void){
     configUART(115200,'N',1);
     EnableInterrupts();
 
-    while (1)
+    while (program == 0)
     {
     }
 
