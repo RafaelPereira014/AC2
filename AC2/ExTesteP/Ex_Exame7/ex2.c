@@ -50,8 +50,8 @@ int configAll(void){
 
 
     //Configurar TIMER
-    T2CONbits.TCKPS = 5;  //? 
-    PR2 = 62499;         
+    T2CONbits.TCKPS = 3;  //? 
+    PR2 = 49999;         
     TMR2 = 0;            
     T2CONbits.TON = 1;
     //interrupcoes t2
@@ -63,7 +63,7 @@ int configAll(void){
 
     OC1CONbits.OCM = 6;  
     OC1CONbits.OCTSEL =0; 
-    OC1RS = 18750;       
+    OC1RS = 15000;       
     OC1CONbits.ON = 1;
 
     return 1;
