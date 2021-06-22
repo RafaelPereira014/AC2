@@ -21,27 +21,20 @@ void configUART(unsigned int baud,char parity,unsigned int stopBits){
 }
 char getc(void)    {      
     char leitura;
-     // If OERR == 1 then reset OERR    
+        
      if(U2STAbits.OERR == 1){
-        U2STAbits.OERR == 1;
+        U2STAbits.OERR = 0;
         return 0;
 
      }
-
-      // Wait while URXDA == 0 
       while(U2STAbits.URXDA == 0); 
            
-      // If FERR or PERR then  
       if(U2STAbits.FERR == 1 || U2STAbits.PERR) 
       {
-          leitura = U2RXREG;        //   read UxRXREG (to discard the character) and return 0    
-
+          leitura = U2RXREG;            
           return 0;
-      } else{            // else      
-
-
-          return U2RXREG;            //   Return U2RXREG   
-
+      } else{               
+          return U2RXREG;           
       }   
  }
 
