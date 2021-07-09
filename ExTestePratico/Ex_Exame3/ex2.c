@@ -1,5 +1,20 @@
 #include <detpic32.h>
 
+
+
+void configUART(unsigned int baud,char parity,unsigned int stopBits);
+void sendToDisplay(int value);
+void delay(int ms);
+int main (void){
+    
+     TRISB = TRISB & 0x000F;
+    configUART(115200,'N',1);
+    EnableInterrupts();
+    while(1){
+    }
+    return 1;
+}
+
 void configUART(unsigned int baud,char parity,unsigned int stopBits){
    //confi UART2
     U2BRG = ((PBCLK + (8*baud))/(16*baud))-1;
@@ -69,12 +84,3 @@ void _int_(32) isr_UART2(void){
         IFS1bits.U2RXIF = 0;
 }
 
-int main (void){
-    
-     TRISB = TRISB & 0x000F;
-    configUART(115200,'N',1);
-    EnableInterrupts();
-    while(1){
-    }
-    return 1;
-}
