@@ -1,6 +1,23 @@
 #include <detpic32.h>
 
 volatile int v;
+void sendToDisplay(int value);
+int getADC(void);
+int configAll(void);
+
+int main(void){
+    EnableInterrupts();
+    configAll();
+    while(1){
+        AD1CON1bits.ASAM =1;
+        while(IFS1bits.AD1IF ==0);
+        v = getADC();
+        sendToDisplay(v);
+    }
+
+    return 1;
+
+}
 
 void sendToDisplay(int value)
 {
@@ -69,27 +86,9 @@ int configAll(void){
     return 1;
 }
 
-int _int_(8) isr_timer2(void){
+void _int_(8) isr_timer2(void){
     
-    while(1){
-        while(IFS1bits.AD1IF ==0)
-        {
-        }
-        v = getADC();
         sendToDisplay(v);
-        AD1CON1bits.ASAM =1;
-    }
-
-    return 1;
+	    IFS0bits.T2IF = 0;
 }
 
-int main(void){
-    EnableInterrupts();
-    configAll();
-    while(1){
-
-    }
-
-    return 1;
-
-}
