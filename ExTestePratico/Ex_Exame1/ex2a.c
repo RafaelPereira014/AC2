@@ -83,17 +83,14 @@ int getADCvalue(void)
 
 int main(void)
 {
-    
     ConfigAll();
-
     while (1)
     {
-        while (IFS1bits.AD1IF == 0)
-        {
-        }
-        ad = getADCvalue();
         delay(100);
         AD1CON1bits.ASAM = 1;
+        while (IFS1bits.AD1IF == 0);
+        ad = getADCvalue();
+        sendToDisplay(ad);
     }
 
     return 1;
