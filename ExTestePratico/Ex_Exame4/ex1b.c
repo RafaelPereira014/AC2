@@ -1,5 +1,14 @@
 #include <detpic32.h>
 
+int main(void){
+    TRISB = TRISB & 0x000F;
+
+    while(1){
+        sendToDisplay(PORTB & 0x000F);
+    }
+}
+
+
 void sendToDisplay(int value)
 {
     TRISB = TRISB & 0x00FF;
@@ -25,12 +34,5 @@ void sendToDisplay(int value)
         LATB = LATB | high;
     }
     flag = !flag;
-}
-int main(void){
-    TRISB = TRISB & 0x000F;
-
-    while(1){
-        sendToDisplay(PORTB & 0x000F);
-    }
 }
 
