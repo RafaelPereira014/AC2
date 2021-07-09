@@ -82,8 +82,7 @@ void _int_(8) isr_timer2(void)
 
 int getADCvalue(void)
 {
-    while (IFS1bits.AD1IF == 0)
-    {
+    while (IFS1bits.AD1IF == 0){
     }
     return ADC1BUF0;
 }
