@@ -1,0 +1,5 @@
+. Parametros de comunicacao: 56700 bps,8data bits,'O' parity,1stop bits
+Quando receber o caracter 'l' le o valor dos switches DS1-DS3 e envia para o monitor o caracter ascii correspondente.('0'....'7')
+quando receber o caracter 's' envia para o monitor nome e numero mecanografico
+quando receber 'q' termina o programa
+o processamento de rececao deve ser feito por interrupcao e nao podem ser usados system calls.
