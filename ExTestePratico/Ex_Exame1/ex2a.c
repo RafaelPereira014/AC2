@@ -1,6 +1,105 @@
 #include <detpic32.h>
 
-volatile int ad;
+//ler da adc com interrupçoes e meter no display o valor lido em hexadecimal. frequencia da adc de 10 hz e frequencia refrescamento do display 120hz atraves do timer2.
+
+
+volatile int v;
+void delay(int ms);
+void send2displays(unsigned char value);
+
+
+int main(void){
+    // Displays
+	TRISDbits.TRISD6 = 0;
+	TRISDbits.TRISD5 = 0;
+	TRISB = TRISB & 0x80FF;
+	LATB = LATB & 0x80FF;
+    
+    //configurar ADC
+    TRISBbits.TRISB4 = 1;
+    AD1PCFGbits.PCFG4= 0;
+    AD1CON1bits.SSRC = 7;
+    AD1CON1bits.CLRASAM = 1;
+    AD1CON3bits.SAMC = 16;
+    AD1CON2bits.SMPI = 2-1;
+    AD1CHSbits.CH0SA = 4;
+    AD1CON1bits.ON = 1;
+    //interrupcoes ADC
+    IPC6bits.AD1IP = 2;
+    IFS1bits.AD1IF = 0;
+    IEC1bits.AD1IE = 1;
+
+    //configurar Timer
+    T2CONbits.TCKPS = 2;
+    PR2 = 41666;
+    TMR2 = 0;
+    T2CONbits.TON=1;
+    //interrupcoes timer2
+    IPC2bits.T2IP = 2;
+    IEC0bits.T2IE = 1;
+
+    AD1CON1bits.ASAM = 1;
+    IFS0bits.T2IF=0;
+    EnableInterrupts();
+    while (1)
+    {
+    
+    }
+    return 1;
+}
+
+void _int_(8) isr_timer2(){
+    send2displays(v);
+    IFS0bits.T2IF = 0;
+}
+void _int_(27) isr_adc(){
+    v = ADC1BUF0;  
+    delay(100);  
+    AD1CON1bits.ASAM = 1;
+    IFS1bits.AD1IF = 0; 
+}
+void send2displays(unsigned char value)
+{
+    static const char display7Scodes[] = {
+                                        0x3F, //0
+                                        0x06, //1
+                                        0x5B, //2
+                                        0x4F, //3
+                                        0x66, //4
+                                        0x6D, //5
+                                        0x7D, //6
+                                        0x07, //7
+                                        0x7F, //8
+                                        0x6F, //9
+                                        0x77, //A
+                                        0x7C, //b
+                                        0x39, //C
+                                        0x5E, //d
+                                        0x79, //E
+                                        0x71  //F
+                                        };
+    
+    static char displayFlag = 0;
+
+    unsigned char dh = value >> 4;      // Get the index of the decimal part
+    unsigned char dl = value & 0x0F;    // Get the index of the unitary part
+    
+    // Get the correct hex code for the number
+    dh = display7Scodes[dh];
+    dl = display7Scodes[dl];
+    
+    if (displayFlag == 0)
+    {
+        LATD = (LATD | 0x0040) & 0xFFDF;    // Dipslay High active and Display Low OFF
+        LATB = (LATB & 0x80FF) | ((unsigned int)(dh)) << 8; // Clean the display and set the right value
+    } else {
+        LATD = (LATD | 0x0020) & 0xFFBF;    // Display High OFF and Display High active
+        LATB = (LATB & 0x80FF) | ((unsigned int)(dl)) << 8; // Clean the display and set the right value
+    }
+
+    displayFlag = !displayFlag;
+}
+
 
 void delay(int ms)
 {
@@ -12,86 +111,4 @@ void delay(int ms)
         }
         ms -= 1;
     }
-}
-
-void sendToDisplay(int value)
-{
-    static unsigned char display7Scodes[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71};
-    static int flip = 0;
-
-    TRISB = TRISB & 0x00FF;
-    LATB = LATB & 0x00FF;
-    TRISD = TRISD & 0xFF9F;
-
-    unsigned int low = display7Scodes[value & 0x0F] << 8;
-    unsigned int high = display7Scodes[value >> 4] << 8;
-
-    if (flip == 0)
-    {
-        LATDbits.LATD5 = 1;
-        LATDbits.LATD6 = 0;
-        LATB = LATB | high;
-    }
-    else
-    {
-        LATDbits.LATD5 = 0;
-        LATDbits.LATD6 = 1;
-        LATB = LATB | low;
-    }
-
-    flip = !flip;
-}
-
-void ConfigAll(void){
-    EnableInterrupts();
-    // configurar adc
-    TRISBbits.TRISB4 = 1;
-    AD1PCFGbits.PCFG4 = 0;
-    AD1CON1bits.SSRC = 7;
-    AD1CON1bits.CLRASAM = 1;
-    AD1CON3bits.SAMC = 16;
-    AD1CON2bits.SMPI = 1 - 1;
-    AD1CHSbits.CH0SA = 4;
-    AD1CON1bits.ON = 1;
-    AD1CON1bits.ASAM = 1;
-
-    // configurar timer2
-    T2CONbits.TCKPS = 2;
-    PR2 = 41665;
-    TMR2 = 0;
-    T2CONbits.TON = 1;
-
-    // interrupcoes do timer2
-    IPC2bits.T2IP = 2;
-    IEC0bits.T2IE = 1;
-    IFS0bits.T2IF = 0;
-
-}
-void _int_(8) isr_timer2(void)
-{
-    sendToDisplay(ad);
-    IFS0bits.T2IF = 0;
-}
-
-int getADCvalue(void)
-{
-    while (IFS1bits.AD1IF == 0)
-    {
-    }
-    return ADC1BUF0;
-}
-
-int main(void)
-{
-    ConfigAll();
-    while (1)
-    {
-        delay(100);
-        AD1CON1bits.ASAM = 1;
-        while (IFS1bits.AD1IF == 0);
-        ad = getADCvalue();
-        sendToDisplay(ad);
-    }
-
-    return 1;
 }
